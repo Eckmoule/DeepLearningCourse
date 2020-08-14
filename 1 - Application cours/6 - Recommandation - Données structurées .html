@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>1 - Classification découverte (chiffres)-checkpoint</title>
+<title>6 - Recommandation - Données structurées </title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13073,101 +13073,45 @@ div#notebook {
 <body>
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
-On charge la librairie
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">fastai2.vision.all</span> <span class="kn">import</span> <span class="o">*</span>
-</pre></div>
 
-    </div>
-</div>
-</div>
-
-</div>On charge les informations contenues dans le dossier mnist_sample. Il contient des données d'entrainement et de validations représantant des 3 et des 7
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/storage/data/mnist_sample&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># On utilise les librairies tabular (données structurées) et collab pour le filtrage collaboratif. </span>
+<span class="kn">from</span> <span class="nn">fastai2.collab</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">fastai2.tabular.all</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-</div>On applique la fonction ls() qui permet de lister les fichiers se trouvant dans le dossier (ici /train/3). La méthode sorted() permet de les trier dans l'ordre alphabétique. 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">threes</span> <span class="o">=</span> <span class="p">(</span><span class="n">path</span><span class="o">/</span><span class="s1">&#39;train&#39;</span><span class="o">/</span><span class="s1">&#39;3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ls</span><span class="p">()</span><span class="o">.</span><span class="n">sorted</span><span class="p">()</span>
-</pre></div>
-
-    </div>
 </div>
-</div>
-
-</div>On peut afficher une image pour l'exemple
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">threes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[5]:</div>
-
-
-
-
-<div class="output_png output_subarea output_execute_result">
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAA5klEQVR4nGNgoD9gRGJr+aSevsAw4Rc2demf/v379++fE1ZDhF78+/fv3793blhlM778e/Dv379e7A44/+/Sv3//lLBLhpz79+/fP00cbpe4+O/fv9VwLguyXLSeDgMDw1Fs2jSu/fr3D8VOJoSkpiLEmAKsNuZ9+/cPp52TbgswsEzmw+FYBgYGxoZ/t+VxSbL/+3dNBpdk179/JehiwhujGBgYGBgkP2AJviX/rturMBhHnvv3r5sDXdLy6L9/97Z8/Pfv71VuTLt6Mv/9+/fv3783yIIwf5aw8zAYRDJ8xB7TdAQABFdhZWAfWxoAAAAASUVORK5CYII=
-"
->
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On transforme notre image en tableau de nombre (à plusieurs dimension). L'objet tensor va permettre de transformer l'image en tableau de pixel (0-255) niveaux de gris. On a donc un tableau de 28 par 28 pixel et pour chaque entrée un nombre entre 0 et 255 représentant le "niveau de gris". 
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">threes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">im3_t</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># FastAi propose un jeux de données du site Movie Lens. C&#39;est un sous ensemble de 100.000 notes par des utilisateurs. </span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">untar_data</span><span class="p">(</span><span class="n">URLs</span><span class="o">.</span><span class="n">ML_100k</span><span class="p">)</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-</div>Il est possible de manipuler le tableau ainsi rendu. Par exemple ici on affiche le résultat des lignes 3 à 9 et des colonnes 3 à 9
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">im3_t</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="mi">4</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># On charge les données du fichier csv fourni pour voir à quoi elles ressemblent. </span>
+<span class="n">ratings</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="o">/</span><span class="s1">&#39;u.data&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">,</span><span class="s1">&#39;movie&#39;</span><span class="p">,</span><span class="s1">&#39;rating&#39;</span><span class="p">,</span><span class="s1">&#39;timestamp&#39;</span><span class="p">])</span>
+<span class="c1"># On affiche les 10 premières lignes</span>
+<span class="n">ratings</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13180,18 +13124,109 @@ On charge la librairie
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[7]:</div>
+    <div class="prompt output_prompt">Out[9]:</div>
 
 
 
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-<div class="output_text output_subarea output_execute_result">
-<pre>tensor([[  0,   0,   0,   0,   0,   0],
-        [  0,   0,   0,   0,   0,  29],
-        [  0,   0,   0,  48, 166, 224],
-        [  0,  93, 244, 249, 253, 187],
-        [  0, 107, 253, 253, 230,  48],
-        [  0,   3,  20,  20,  15,   0]], dtype=torch.uint8)</pre>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user</th>
+      <th>movie</th>
+      <th>rating</th>
+      <th>timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>196</td>
+      <td>242</td>
+      <td>3</td>
+      <td>881250949</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>186</td>
+      <td>302</td>
+      <td>3</td>
+      <td>891717742</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>22</td>
+      <td>377</td>
+      <td>1</td>
+      <td>878887116</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>244</td>
+      <td>51</td>
+      <td>2</td>
+      <td>880606923</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>166</td>
+      <td>346</td>
+      <td>1</td>
+      <td>886397596</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>298</td>
+      <td>474</td>
+      <td>4</td>
+      <td>884182806</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>115</td>
+      <td>265</td>
+      <td>2</td>
+      <td>881171488</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>253</td>
+      <td>465</td>
+      <td>5</td>
+      <td>891628467</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>305</td>
+      <td>451</td>
+      <td>3</td>
+      <td>886324817</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>6</td>
+      <td>86</td>
+      <td>3</td>
+      <td>883603013</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 </div>
 
 </div>
@@ -13199,26 +13234,100 @@ On charge la librairie
 </div>
 </div>
 
-</div>Pour réaliser nos tests nous allons charger de cette manière l'ensemble des images dont les chemins ont été stockés dans la variable threes (point 3). 
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># On récupére le nom des films pour les id fournis dans le fichier précédent. </span>
+<span class="n">movies</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="o">/</span><span class="s1">&#39;u.item&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;latin-1&#39;</span><span class="p">,</span> 
+                     <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;movie&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">movies</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[11]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>movie</th>
+      <th>title</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Toy Story (1995)</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>GoldenEye (1995)</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Four Rooms (1995)</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Get Shorty (1995)</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Copycat (1995)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">three_tensor</span> <span class="o">=</span> <span class="p">[</span><span class="n">tensor</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">o</span><span class="p">))</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">threes</span><span class="p">]</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>J'obtiens donc une liste de 6131 objets tensor. Chaque objet est un tableau de 28 par 28
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">three_tensor</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">three_tensor</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">three_tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="n">three_tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># La librairie panda permet de merge les données basé sur le nom de la colonne</span>
+<span class="n">ratings</span> <span class="o">=</span> <span class="n">ratings</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">movies</span><span class="p">)</span>
+<span class="n">ratings</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13231,48 +13340,80 @@ On charge la librairie
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[10]:</div>
+    <div class="prompt output_prompt">Out[12]:</div>
 
 
 
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-<div class="output_text output_subarea output_execute_result">
-<pre>(list, 6131, torch.Tensor, torch.Size([28, 28]))</pre>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user</th>
+      <th>movie</th>
+      <th>rating</th>
+      <th>timestamp</th>
+      <th>title</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>196</td>
+      <td>242</td>
+      <td>3</td>
+      <td>881250949</td>
+      <td>Kolya (1996)</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>63</td>
+      <td>242</td>
+      <td>3</td>
+      <td>875747190</td>
+      <td>Kolya (1996)</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>226</td>
+      <td>242</td>
+      <td>5</td>
+      <td>883888671</td>
+      <td>Kolya (1996)</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>154</td>
+      <td>242</td>
+      <td>3</td>
+      <td>879138235</td>
+      <td>Kolya (1996)</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>306</td>
+      <td>242</td>
+      <td>5</td>
+      <td>876503793</td>
+      <td>Kolya (1996)</td>
+    </tr>
+  </tbody>
+</table>
 </div>
-
-</div>
-
-</div>
-</div>
-
-</div>Je cherches à regrouper l'ensemble de mes exemples (6131 ici) dans un seul tableau. Le fait de stocker l'ensemble des données dans un seul tensor va permettre d'éxécuter des opérations de manière parallèle (et efficace) pour gagner du temps. 
-On en profite également pour ramener les valeures comprises en 0 et 255 à leurs équivalent entre 0 et 1 pour plus de simplicité dans les calculs. 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">stacked_threes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">three_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">/</span><span class="mi">255</span>
-<span class="n">stacked_threes</span><span class="o">.</span><span class="n">shape</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[13]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>torch.Size([6131, 28, 28])</pre>
 </div>
 
 </div>
@@ -13286,7 +13427,9 @@ On en profite également pour ramener les valeures comprises en 0 et 255 à leur
 <div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">stacked_threes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="mi">4</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># FastAI propose des DataLoader spécifiques (Comportement par défaut pour filtrage collaboratif)</span>
+<span class="n">dls</span> <span class="o">=</span> <span class="n">CollabDataLoaders</span><span class="o">.</span><span class="n">from_df</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span> <span class="n">item_name</span><span class="o">=</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="n">bs</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
+<span class="n">dls</span><span class="o">.</span><span class="n">show_batch</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13299,18 +13442,83 @@ On en profite également pour ramener les valeures comprises en 0 et 255 à leur
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[14]:</div>
+    <div class="prompt"></div>
 
 
 
-
-<div class="output_text output_subarea output_execute_result">
-<pre>tensor([[0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
-        [0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.1137],
-        [0.0000, 0.0000, 0.0000, 0.1882, 0.6510, 0.8784],
-        [0.0000, 0.3647, 0.9569, 0.9765, 0.9922, 0.7333],
-        [0.0000, 0.4196, 0.9922, 0.9922, 0.9020, 0.1882],
-        [0.0000, 0.0118, 0.0784, 0.0784, 0.0588, 0.0000]])</pre>
+<div class="output_html rendered_html output_subarea ">
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user</th>
+      <th>title</th>
+      <th>rating</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>807</td>
+      <td>Crow, The (1994)</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>542</td>
+      <td>Clockwork Orange, A (1971)</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>116</td>
+      <td>Scream (1996)</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>102</td>
+      <td>G.I. Jane (1997)</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>426</td>
+      <td>Ben-Hur (1959)</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>727</td>
+      <td>Escape from L.A. (1996)</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>585</td>
+      <td>Magnificent Seven, The (1954)</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>152</td>
+      <td>Babe (1995)</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>693</td>
+      <td>Substitute, The (1996)</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>683</td>
+      <td>Mimic (1997)</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
 </div>
 
 </div>
@@ -13318,30 +13526,43 @@ On en profite également pour ramener les valeures comprises en 0 et 255 à leur
 </div>
 </div>
 
-</div>On fait la même chose pour les 7
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/storage/data/mnist_sample&#39;</span><span class="p">)</span>
-<span class="n">sevens</span> <span class="o">=</span> <span class="p">(</span><span class="n">path</span><span class="o">/</span><span class="s1">&#39;train&#39;</span><span class="o">/</span><span class="s1">&#39;7&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ls</span><span class="p">()</span><span class="o">.</span><span class="n">sorted</span><span class="p">()</span>
-<span class="n">seven_tensor</span> <span class="o">=</span> <span class="p">[</span><span class="n">tensor</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">o</span><span class="p">))</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">sevens</span><span class="p">]</span>
-<span class="n">stacked_sevens</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">seven_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">/</span><span class="mi">255</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># On récupére le nombre d&#39;utilisateur et de films contenus dans notre jeux de données</span>
+<span class="n">n_users</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dls</span><span class="o">.</span><span class="n">classes</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">])</span>
+<span class="n">n_movies</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dls</span><span class="o">.</span><span class="n">classes</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">])</span>
+<span class="n">n_factors</span> <span class="o">=</span> <span class="mi">5</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-</div>On concatene toutes les images de trois et de sept dans le même tableau. D'abords tout les 3 puis tout les 7. 
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">stacked_digits</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">stacked_threes</span><span class="p">,</span> <span class="n">stacked_sevens</span><span class="p">])</span>
-<span class="n">stacked_digits</span><span class="o">.</span><span class="n">shape</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Le principe que l&#39;on va appliqué correspond aux &quot;caractéristiques latentes&quot;. l&#39;idées est d&#39;attribuer x caractéristiques </span>
+<span class="c1"># aléatoires au éléments (film et user ici). Ces caractèristiques correspondraient à des types de films (SF, Romantique, </span>
+<span class="c1"># ...). On va ensuite grace aux machine learning essayé de déterminer ses caractèristiques pour chaque élément en fonction</span>
+<span class="c1"># des notes attribuées. </span>
+<span class="c1"># Exemple: User1 [0.1, 0.9] (Aime pas trop la SF mais bien le Romantique)</span>
+<span class="c1">#          Film1 [0.9, 0.2], Film2 [0.1, 0.8]</span>
+<span class="c1"># Si je multiplie les caractérisque de mon utilisateur à celle des films 0.1*0.9 + 0.9*0.2 et 0.1*0.1 + 0.9*0.8 j&#39;obtiens </span>
+<span class="c1"># un résultat nettement supérieur pour le second film (il est romantique et l&#39;utilisateur aime les film romantique)</span>
+<span class="c1"># Dans les fait les &quot;caractéristiques latentes&quot; ne sont pas définies, on ne sait pas à quoi elles correspondent. </span>
+
+<span class="c1"># On initialise donc 5 caractéristiques aléatoirement pour les utilisateurs et les films</span>
+
+<span class="n">user_factors</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_users</span><span class="p">,</span> <span class="n">n_factors</span><span class="p">)</span>
+<span class="n">movie_factors</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_movies</span><span class="p">,</span> <span class="n">n_factors</span><span class="p">)</span>
+<span class="n">user_factors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 
     </div>
@@ -13360,7 +13581,7 @@ On en profite également pour ramener les valeures comprises en 0 et 255 à leur
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>torch.Size([12396, 28, 28])</pre>
+<pre>tensor([ 0.0212, -1.2224, -0.4576,  0.9599, -0.4317])</pre>
 </div>
 
 </div>
@@ -13368,1115 +13589,7 @@ On en profite également pour ramener les valeures comprises en 0 et 255 à leur
 </div>
 </div>
 
-</div>Au lieu d'avoir un tableau de 28 par 28 pour les pixels on préfère travailler avec une liste de chiffres mis bout à bout (784 du coup). 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_x</span> <span class="o">=</span> <span class="n">stacked_digits</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="o">*</span><span class="mi">28</span><span class="p">)</span>
-<span class="n">train_x</span><span class="o">.</span><span class="n">shape</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[17]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>torch.Size([12396, 784])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On crée une liste de labels (3 ou 7) pour savoir à quoi chaque element correspond. Ici on positionne les labels 0 ou 1 car on cherche à savoir si l'image est un trois ou pas (un sept). 
-Les x premiers element de mon tableau sont des trois et les y suivant sont des septs. x valant le nombre de trois dans mon jeux d'entrainement
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">stacked_labels</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">threes</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">sevens</span><span class="p">))</span>
-<span class="n">stacked_labels</span><span class="o">.</span><span class="n">shape</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[18]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>torch.Size([12396])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On rajoute un axe pour simplifier l'accès au données label. (pas bien compris il semble qu'au lieu d'avoir un tableau de 0 ou 1 on a un tableau de tableau de 0 ou 1 ?)
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_y</span> <span class="o">=</span> <span class="n">stacked_labels</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">stacked_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">train_y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[19]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(tensor(1), tensor([1]))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>A ce moment la nous avons un tableau train_x qui contient les 12396 images de 3 et 7 sous la forme d'une suite de nombres entre 0 et 1 représentant le contraste et un tableau train_y qui correspond à ce qu'il faut trouver (3 ou pas 3) pour chaque suite de nombre. 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">train_y</span><span class="o">.</span><span class="n">shape</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[20]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(torch.Size([12396, 784]), torch.Size([12396, 1]))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On peut appliquer des opérations sur l'ensemble des élements par exemple ici
-- On calcul le trois "moyen" en réalisant une moyenne pour chaque pixel de tout les éléments du tabeau 
-- On calcul la "distance" entre une image donné et le trois moyen calculé précédement. 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">mean3</span> <span class="o">=</span> <span class="n">stacked_threes</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">show_image</span><span class="p">(</span><span class="n">mean3</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[21]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f842798dd10&gt;</pre>
-</div>
-
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-
-<div class="output_png output_subarea ">
-<img src="data:image/png;base64,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
-"
->
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">a_3</span> <span class="o">=</span> <span class="n">stacked_threes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">dist_3_abs</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_3</span> <span class="o">-</span> <span class="n">mean3</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
-<span class="n">dist_3_sqr</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_3</span> <span class="o">-</span> <span class="n">mean3</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
-
-<span class="n">show_image</span><span class="p">(</span><span class="n">dist_3_abs</span><span class="p">),</span> <span class="n">show_image</span><span class="p">(</span><span class="n">dist_3_sqr</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[22]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f8427177390&gt;,
- &lt;matplotlib.axes._subplots.AxesSubplot at 0x7f842712bf90&gt;)</pre>
-</div>
-
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-
-<div class="output_png output_subarea ">
-<img src="data:image/png;base64,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
-"
->
-</div>
-
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-
-<div class="output_png output_subarea ">
-<img src="data:image/png;base64,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
-"
->
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>il est également possible d'effectuer des opérations sur l'ensemble d'un tensor. Par exemple
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tensor_example</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
-<span class="n">tensor_example</span> <span class="o">+</span> <span class="mi">1</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[23]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>tensor([[2, 3, 4],
-        [5, 6, 7]])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>Cela va nous permettre de définir des fonctions que nous allons pouvoir éxécuter sur l'ensemble des objets d'un tensor. 
-- On décrit une fonction de calcul de la distance (on trouve la valeur absolue de distance entre chaque pixel puis on resort la moyenne de ces distances. 
-- On teste la différence entre un 3 et le 3 moyen puis entre un 7 et le 3 moyen.
-- On peut le faire sur l'ensemble de la liste d'un seul coup.
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">mnist_distance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">-</span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">mnist_distance</span><span class="p">(</span><span class="n">stacked_threes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">mean3</span><span class="p">),</span><span class="n">mnist_distance</span><span class="p">(</span><span class="n">stacked_sevens</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">mean3</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[20]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(tensor(0.1114), tensor(0.1854))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">mnist_distance</span><span class="p">(</span><span class="n">stacked_threes</span><span class="p">,</span><span class="n">mean3</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[25]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>tensor([0.1074, 0.1114, 0.1100,  ..., 0.1316, 0.1220, 0.1267])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On créer une fonction mathématique fléxible qui va nous permettre pour chaque image d'essayer de déterminer le label. 
-L'idée ici va être de multiplier chaque pixel (niveau de gris) par un paramètre différent et d'additionner l'ensemble des résultat. Soit
-pixel0 x param0 + pixel1 x param1 + ...
-
-On pense que cette combinaison linéaire va permettre de reconnaitre un chiffre car le modèle va apparendre des paramètres très grands sur les pixels très probables pour un 3 et très négatifs pour les pixel imbrobables pour un trois. Ainsi la somme sera fortement supérieur à 0 si on a beaucoup de pixel probable pour un trois et inversement (très négatif si improbable). On crée une fonction pour initialiser les 784 paramètres (chiffres entre -1 et 1)
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">init_params</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">*</span><span class="n">std</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>On initialise une liste de 784 paramètre aléatoires ainsi qu'une constante (biais). Le biais permet de s'aligner plus facilement sur 0 (pas compris pourquoi). 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">weights</span><span class="o">=</span><span class="n">init_params</span><span class="p">((</span><span class="mi">28</span><span class="o">*</span><span class="mi">28</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">bias</span><span class="o">=</span> <span class="n">init_params</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">bias</span><span class="o">.</span><span class="n">shape</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[27]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(torch.Size([784, 1]), torch.Size([1]))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On créer la fonction de calcul du model. La multiplication s'effectue directement sur le tensor (tensor*tensor) grace à l'opérateur @. 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">linear_model</span><span class="p">(</span><span class="n">xb</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">xb</span><span class="nd">@weights</span> <span class="o">+</span> <span class="n">bias</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>On créer la fonction de prédiction. Elle retourne un booléen qui indique si la prédiction réalisé par le modèle pour chaque élément est >0 ou <0. Cette fonction sera utilisée uniquement pour le calcul de la performance (résultat binaire) pour l'entrainement on utilisera une fonction de cout avec une notion de distance par rapport au résultat souhaité. 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[29]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">xb</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">linear_model</span><span class="p">(</span><span class="n">xb</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>On utilise le jeux d'entrainement et on crée une première prédiction
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predictions</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">train_x</span><span class="p">)</span>
-<span class="n">predictions</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">predictions</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[30]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(torch.Size([12396, 1]),
- tensor([[False],
-         [False],
-         [False],
-         ...,
-         [False],
-         [ True],
-         [False]]))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On va cherche maintenant à améliorer notre prédiction (pour le moment basé sur un jeux de paramètre initialisé aléatoirement). On va donc chercher à les ajuster pour améliorer la prédiction. Pour cela on va créer une fonction qui messure l'erreur de prédiction. 
-On détermine pour chaque prédictions si elle est correcte en la comparant à notre tableau de label (3 ou pas 3). Puis on transforme le résultat en nombre pour obtenir un tableau de 0 et de 1 (1 pour chaque prédiction juste). 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[109]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">accuracy</span><span class="p">(</span><span class="n">activations</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
-    <span class="n">predictions</span> <span class="o">=</span> <span class="n">activations</span> <span class="o">&gt;</span> <span class="mi">0</span>
-    <span class="n">corrects</span> <span class="o">=</span> <span class="p">(</span><span class="n">predictions</span> <span class="o">==</span> <span class="n">targets</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">corrects</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>Cette métrique ne peut pas être utilisé par le machine learning pour s'entraîner car le résultat est binaire (bon/pas bon). Nous allons chercher une méthode permettant de savoir si le changement nous a fait nous rapprocher d’un bon résultat même s’il est toujours mauvais. 
-Pour cela nous allons créer une fonction de cout qui va utiliser la notion de distance (plus ou moins proche du bon résultat).Cette fonction utilise la méthode mathématique sigmoid qui permet de projeter les valeurs entre 0 et 1. Ensuite la distances avec le bon résultat est 1-resultat lorsque le bon résultat est 1 et resultat-0 lorsque le bon résultat est 0. 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[89]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">mnist_loss</span><span class="p">(</span><span class="n">activations_01</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
-        <span class="n">activations_01</span> <span class="o">=</span> <span class="n">activations_01</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">()</span>
-        <span class="n">distances</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">targets</span><span class="o">==</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">-</span><span class="n">activations_01</span><span class="p">,</span><span class="n">activations_01</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">distances</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>Exemples: 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[52]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">labels</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">activations_01</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">([</span><span class="mf">0.9</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="o">-</span><span class="mi">560</span><span class="p">])</span>
-<span class="n">activations_01</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(),</span><span class="n">mnist_loss</span><span class="p">(</span><span class="n">activations_01</span><span class="p">,</span><span class="n">labels</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[52]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(tensor([0.7109, 0.5987, 0.5498, 1.0000, 0.0000]), tensor(132.4600))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>Nous allons mettre en place le principe de mini-batch afin de tester les paramètres et de pouvoir les ajuster pour entrainer le modèle par lot de x exemples plutot que sur l'ensenble du jeux d'entrainement afin d'optimiser le traitement et de bénéficier d'un plus grand nombre de "pas" d'ajustement. 
-Pour cela on utilise la classe DataLoader.
-Exemple:
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[54]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">coll</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
-<span class="n">dl</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">coll</span><span class="p">,</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nb">list</span><span class="p">(</span><span class="n">dl</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[54]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>[tensor([ 4, 10,  1]), tensor([8, 5, 0]), tensor([7, 3, 2]), tensor([6])]</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Avec</span> <span class="n">des</span> <span class="n">couples</span> <span class="n">valeur</span> <span class="o">/</span> <span class="n">label</span><span class="o">.</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[57]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">datasource</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span><span class="p">))</span>
-<span class="n">dl</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">datasource</span><span class="p">,</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">datasource</span><span class="p">,</span><span class="nb">list</span><span class="p">(</span><span class="n">dl</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[57]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>((#26) [(0, &#39;a&#39;),(1, &#39;b&#39;),(2, &#39;c&#39;),(3, &#39;d&#39;),(4, &#39;e&#39;),(5, &#39;f&#39;),(6, &#39;g&#39;),(7, &#39;h&#39;),(8, &#39;i&#39;),(9, &#39;j&#39;)...],
- [(tensor([ 5,  2, 15, 25, 22, 12]), (&#39;f&#39;, &#39;c&#39;, &#39;p&#39;, &#39;z&#39;, &#39;w&#39;, &#39;m&#39;)),
-  (tensor([ 1,  6,  7, 11, 21, 17]), (&#39;b&#39;, &#39;g&#39;, &#39;h&#39;, &#39;l&#39;, &#39;v&#39;, &#39;r&#39;)),
-  (tensor([ 4,  9, 13, 24, 16, 18]), (&#39;e&#39;, &#39;j&#39;, &#39;n&#39;, &#39;y&#39;, &#39;q&#39;, &#39;s&#39;)),
-  (tensor([ 0,  8, 14,  3, 23, 20]), (&#39;a&#39;, &#39;i&#39;, &#39;o&#39;, &#39;d&#39;, &#39;x&#39;, &#39;u&#39;)),
-  (tensor([10, 19]), (&#39;k&#39;, &#39;t&#39;))])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>Nous avons désormais toutes les données nécessaires à l'entrainement. Les paramètres que nous initialisons: 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[118]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">weights</span> <span class="o">=</span> <span class="n">init_params</span><span class="p">((</span><span class="mi">28</span><span class="o">*</span><span class="mi">28</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">bias</span> <span class="o">=</span> <span class="n">init_params</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>Les tensors contenant les images (liste de pixel) et les labels attendus
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[63]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">train_y</span><span class="o">.</span><span class="n">shape</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[63]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(torch.Size([12396, 784]), torch.Size([12396, 1]))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On crée un dataset en utilisant la fonction python zip pour itérer sur les deux listes
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[64]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_dataset</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span><span class="n">train_y</span><span class="p">))</span>
-<span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">train_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">),</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">y</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[64]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(12396, torch.Size([784]), tensor([1]))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On créer nos mini-batch avec la classe DataLoader
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[71]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_dl</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
-<span class="n">xb</span><span class="p">,</span><span class="n">yb</span> <span class="o">=</span> <span class="n">first</span><span class="p">(</span><span class="n">train_dl</span><span class="p">)</span>
-<span class="n">xb</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">yb</span><span class="o">.</span><span class="n">shape</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[71]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(torch.Size([256, 784]), torch.Size([256, 1]))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On calcul les activations grace à notre méthode linea_model qui appliquent l'ensemble des paramètres à notre model. 
-On prend uniquement les 4 premiers pour l'exemple.
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[94]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">xb</span><span class="p">,</span><span class="n">yb</span> <span class="o">=</span> <span class="n">first</span><span class="p">(</span><span class="n">train_dl</span><span class="p">)</span>
-<span class="n">activations</span> <span class="o">=</span> <span class="n">linear_model</span><span class="p">(</span><span class="n">xb</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
-<span class="n">activations</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[94]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>tensor([[-3.8473],
-        [-0.4300],
-        [ 7.7864],
-        [ 5.2126]], grad_fn=&lt;AddBackward0&gt;)</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On calcul notre erreur avec notre méthode mnist_loss définie ci-dessus (application sigmoid + renvoit de la moyenne des distances avec le résultat attendu. 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[97]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">loss</span> <span class="o">=</span> <span class="n">mnist_loss</span><span class="p">(</span><span class="n">activations</span><span class="p">,</span><span class="n">yb</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
-<span class="n">loss</span>
-</pre></div>
-
-    </div>
 </div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[97]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>tensor(0.3977, grad_fn=&lt;MeanBackward0&gt;)</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On calcul le gradient
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[103]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
-<span class="n">weights</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">weights</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="n">bias</span><span class="o">.</span><span class="n">grad</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[103]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(torch.Size([784, 1]), tensor(-0.0095), tensor([-0.0663]))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">On</span> <span class="n">rassemble</span> <span class="n">le</span> <span class="n">tout</span> <span class="n">dans</span> <span class="n">une</span> <span class="n">fonction</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[104]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">calc_grad</span><span class="p">(</span><span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span> 
-    <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">xb</span><span class="p">)</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="n">mnist_loss</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">yb</span><span class="p">)</span>
-    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>On peut désormais créer une fonction d'entrainement d'une epoque
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[107]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">train_epoch</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">lr</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-    <span class="c1"># On parcours le mini-batchs</span>
-    <span class="k">for</span> <span class="n">xb</span><span class="p">,</span> <span class="n">yb</span> <span class="ow">in</span> <span class="n">train_dl</span><span class="p">:</span>
-        <span class="n">calc_grad</span><span class="p">(</span><span class="n">xb</span><span class="p">,</span><span class="n">yb</span><span class="p">,</span><span class="n">model</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-            <span class="n">p</span><span class="o">.</span><span class="n">data</span> <span class="o">-=</span> <span class="n">p</span><span class="o">.</span><span class="n">grad</span> <span class="o">*</span> <span class="n">lr</span> <span class="c1"># On modifie chaque paramètre en fonction du gradient et du learning rate défini</span>
-            <span class="n">p</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span> <span class="c1"># remise à zéros du gradient pour itération suivante.</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>On va désormais souhaiter messurer l'évolution de la performance sur le jeux de validation (et non sur celui d'entrainement !).
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[108]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># On charge les images valides. </span>
-<span class="n">valid_3_tens</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">tensor</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">o</span><span class="p">))</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="p">(</span><span class="n">path</span><span class="o">/</span><span class="s1">&#39;valid&#39;</span><span class="o">/</span><span class="s1">&#39;3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ls</span><span class="p">()])</span>
-<span class="n">valid_3_tens</span> <span class="o">=</span> <span class="n">valid_3_tens</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">/</span><span class="mi">255</span>
-<span class="n">valid_7_tens</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">tensor</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">o</span><span class="p">))</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="p">(</span><span class="n">path</span><span class="o">/</span><span class="s1">&#39;valid&#39;</span><span class="o">/</span><span class="s1">&#39;7&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ls</span><span class="p">()])</span>
-<span class="n">valid_7_tens</span> <span class="o">=</span> <span class="n">valid_7_tens</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">/</span><span class="mi">255</span>
-
-<span class="c1"># On concatène et crée la liste de label</span>
-<span class="n">valid_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">valid_3_tens</span><span class="p">,</span> <span class="n">valid_7_tens</span><span class="p">])</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="o">*</span><span class="mi">28</span><span class="p">)</span>
-<span class="n">valid_y</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_3_tens</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_7_tens</span><span class="p">))</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">valid_dataset</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">valid_x</span><span class="p">,</span><span class="n">valid_y</span><span class="p">))</span>
-
-<span class="c1">#On met en batch</span>
-<span class="n">valid_dl</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">valid_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>On va utiliser notre fonction accuracy pour déterminer le niveau de performance.
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[113]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">accuracy</span><span class="p">(</span><span class="n">linear_model</span><span class="p">(</span><span class="n">xb</span><span class="p">[:</span><span class="mi">4</span><span class="p">]),</span><span class="n">yb</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[113]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>tensor(0.5000)</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>On définit une méthode de validation de l'époque qui va boucler sur l'ensemble des batch du jeux de validation et nous rendre la moyenne de la performance. Ainsi nous pourrons estimer si notre model s'améliore. 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[114]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">validate_epoch</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
-        <span class="n">accs</span> <span class="o">=</span> <span class="p">[</span><span class="n">accuracy</span><span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="n">xb</span><span class="p">),</span> <span class="n">yb</span><span class="p">)</span> <span class="k">for</span> <span class="n">xb</span><span class="p">,</span><span class="n">yb</span> <span class="ow">in</span> <span class="n">valid_dl</span><span class="p">]</span>
-        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">accs</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="mi">4</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[119]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">validate_epoch</span><span class="p">(</span><span class="n">linear_model</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[119]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0.504</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>Ainsi on peut entrainer un certains nombre de fois notre model
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[140]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">lr</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">params</span> <span class="o">=</span> <span class="n">weights</span><span class="p">,</span><span class="n">bias</span>
-<span class="n">train_epoch</span><span class="p">(</span><span class="n">linear_model</span><span class="p">,</span><span class="n">lr</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
-<span class="n">validate_epoch</span><span class="p">(</span><span class="n">linear_model</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[140]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0.9726</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>Reste à mettre le tout dans une boucle 
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[158]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">lr</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">weights</span> <span class="o">=</span> <span class="n">init_params</span><span class="p">((</span><span class="mi">28</span><span class="o">*</span><span class="mi">28</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">bias</span> <span class="o">=</span> <span class="n">init_params</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">params</span> <span class="o">=</span> <span class="n">weights</span><span class="p">,</span><span class="n">bias</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
-    <span class="n">train_epoch</span><span class="p">(</span><span class="n">linear_model</span><span class="p">,</span> <span class="n">lr</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">validate_epoch</span><span class="p">(</span><span class="n">linear_model</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>0.7382 0.8715 0.9096 0.9276 0.9403 0.9472 0.9496 0.9555 0.9584 0.9608 0.9618 0.9633 0.9652 0.9657 0.9667 0.9667 0.9672 0.9681 0.9681 0.9696 </pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>La factorisation de l'ensemble dans des classes Model et Optimizer est dans le notebook ChiffreDetection FactoriseL'ensemble des objets ainsi crées existe déjà dans PyTorch pour utilisation
-Nortre classe LinearModel existe sous la forme nn.Linear()
-Notre classe SGDOptimizer existe sous la forme SGD()
-Notre méthode Learn existe sous la forme Learner()
     </div>
   </div>
 </body>
